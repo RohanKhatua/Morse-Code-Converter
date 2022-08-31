@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
                     validator: (value) {
                       if (value == "") {
                         return "Enter a message";
-                      } else if (!value!.contains(RegExp("r[A-Z a-z]+"))) {
+                      } else if (!value!.contains(RegExp("[A-Z a-z]+"))) {
                         return "Message should contain only alphabets";
                       } else {
                         return null;
