@@ -11,6 +11,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final myController = TextEditingController();
   String inputText = "";
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -20,21 +21,39 @@ class _HomePageState extends State<HomePage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: myController,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: myController,
+                    validator: (value) {
+                      if (value == "") {
+                        return "Enter a message";
+                      } else if (!value!.contains(RegExp("r[A-Z a-z]+"))) {
+                        return "Message should contain only alphabets";
+                      } else {
+                        return null;
+                      }
+                    },
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          inputText = myController.text;
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CodeDisplay(inputText)),
+                          );
+                        }
+                      },
+                      child: const Text("Get Morse Code"))
+                ],
+              ),
             ),
           ),
-          ElevatedButton(
-              onPressed: () {
-                inputText = myController.text;
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => CodeDisplay(inputText)),
-                );
-              },
-              child: const Text("Get Morse Code")),
         ],
       ),
     );

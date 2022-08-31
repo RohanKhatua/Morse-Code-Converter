@@ -48,36 +48,6 @@ String getMorseCode(String input) {
   return result;
 }
 
-Future<void> startFlashSequence(String morseCode) async {
-  bool isTorchAvailable = false;
-
-  try {
-    isTorchAvailable = await TorchLight.isTorchAvailable();
-  } on Exception catch (_) {
-    const ScaffoldMessenger(child: Text("Torch Not Available"));
-  }
-
-  const int timeUnit = 90;
-
-  if (isTorchAvailable) {
-    for (int i = 0; i < morseCode.length; i++) {
-      if (morseCode[i] == '-') {
-        await TorchLight.enableTorch();
-        sleep(const Duration(milliseconds: 3 * timeUnit));
-        await TorchLight.disableTorch();
-      } else if (morseCode[i] == '.') {
-        await TorchLight.enableTorch();
-        sleep(const Duration(milliseconds: timeUnit));
-        await TorchLight.disableTorch();
-      } else if (morseCode[i] == '\t') {
-        sleep(const Duration(milliseconds: timeUnit * 7));
-      }
-
-      sleep(const Duration(milliseconds: timeUnit));
-    }
-  }
-}
-
 class CodeDisplay extends StatelessWidget {
   final String inputText;
   const CodeDisplay(this.inputText, {super.key});
@@ -119,7 +89,7 @@ class CodeDisplay extends StatelessWidget {
                 children: [
                   ElevatedButton(
                       onPressed: () {
-                        startFlashSequence(morseCode);
+                        startFlashSequence(morseCode, context);
                       },
                       child: const Text("Flash It")),
                   ElevatedButton(
@@ -134,5 +104,40 @@ class CodeDisplay extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> startFlashSequence(
+      String morseCode, BuildContext context) async {
+    bool isTorchAvailable = false;
+
+    try {
+      isTorchAvailable = await TorchLight.isTorchAvailable();
+    } on Exception catch (_) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Torch Not Available")));
+    }
+
+    const int timeUnit = 90;
+
+    if (isTorchAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Your message is being relayed")));
+
+      for (int i = 0; i < morseCode.length; i++) {
+        if (morseCode[i] == '-') {
+          await TorchLight.enableTorch();
+          sleep(const Duration(milliseconds: 3 * timeUnit));
+          await TorchLight.disableTorch();
+        } else if (morseCode[i] == '.') {
+          await TorchLight.enableTorch();
+          sleep(const Duration(milliseconds: timeUnit));
+          await TorchLight.disableTorch();
+        } else if (morseCode[i] == '\t') {
+          sleep(const Duration(milliseconds: timeUnit * 7));
+        }
+
+        sleep(const Duration(milliseconds: timeUnit));
+      }
+    }
   }
 }
